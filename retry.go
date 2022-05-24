@@ -58,12 +58,15 @@ func RetryNotifyWithTimer(operation Operation, b BackOff, notify Notify, t Timer
 		}
 
 		var permanent *PermanentError
+		fmt.Println("checking perm")
 		if errors.As(err, &permanent) {
 			if _, ok := err.(*PermanentError); ok {
 				fmt.Println("was permanent")
 				return permanent.Err
 			}
 			return err
+		} else {
+			fmt.Println("not perm")
 		}
 
 		if next = b.NextBackOff(); next == Stop {
