@@ -52,6 +52,7 @@ func RetryNotifyWithTimer(operation Operation, b BackOff, notify Notify, t Timer
 	ctx := getContext(b)
 
 	b.Reset()
+	fmt.Println("going")
 	for {
 		if err = operation(); err == nil {
 			return nil
