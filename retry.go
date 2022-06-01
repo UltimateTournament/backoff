@@ -56,11 +56,8 @@ func RetryNotifyWithTimer(operation Operation, b BackOff, notify Notify, t Timer
 			return nil
 		}
 
-		var permanent *PermanentError
-		if errors.As(err, &permanent) {
-			if _, ok := err.(*PermanentError); ok {
-				return permanent.Err
-			}
+		var perr PermanentError
+		if errors.As(err, &perr) && perr.IsPermanent() {
 			return err
 		}
 
@@ -86,22 +83,31 @@ func RetryNotifyWithTimer(operation Operation, b BackOff, notify Notify, t Timer
 	}
 }
 
-// PermanentError signals that the operation should not be retried.
-type PermanentError struct {
+// permanentError signals that the operation should not be retried.
+type permanentError struct {
 	Err error
 }
 
-func (e *PermanentError) Error() string {
+type PermanentError interface {
+	IsPermanent() bool
+	Error() string
+}
+
+func (e *permanentError) Error() string {
 	return e.Err.Error()
 }
 
-func (e *PermanentError) Unwrap() error {
+func (e *permanentError) Unwrap() error {
 	return e.Err
 }
 
-func (e *PermanentError) Is(target error) bool {
-	_, ok := target.(*PermanentError)
+func (e *permanentError) Is(target error) bool {
+	_, ok := target.(*permanentError)
 	return ok
+}
+
+func (e *permanentError) IsPermanent() bool {
+	return true
 }
 
 // Permanent wraps the given err in a *PermanentError.
@@ -109,7 +115,7 @@ func Permanent(err error) error {
 	if err == nil {
 		return nil
 	}
-	return &PermanentError{
+	return &permanentError{
 		Err: err,
 	}
 }
