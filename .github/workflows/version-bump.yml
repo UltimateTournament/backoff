@@ -22,6 +22,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
         DEFAULT_BUMP: patch
+        RELEASE_BRANCHES: v4
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v2
       with:
