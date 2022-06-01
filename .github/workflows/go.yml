@@ -1,0 +1,40 @@
+name: Go
+
+on:
+  pull_request:
+    branches: [ main, v4 ]
+
+env:
+  GOPRIVATE: "github.com/UltimateTournament"
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.18
+
+    - uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Inject insteadOf configuration
+      env:
+        PRIVATE_GITHUB_TOKEN: ${{ secrets.PRIVATE_GITHUB_TOKEN }}
+      run: |
+        git config --global url."https://x-oauth-basic:${PRIVATE_GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+
+    - name: Test
+      env:
+        GIT_INSTEAD_OF: "https://x-oauth-basic:${{ secrets.PRIVATE_GITHUB_TOKEN }}@github.com/"
+      run: go test
