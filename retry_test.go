@@ -30,7 +30,7 @@ func (t *testTimer) C() <-chan time.Time {
 
 func TestRetry(t *testing.T) {
 	const successOn = 3
-	var i = 0
+	i := 0
 
 	// This function is successful on "successOn" calls.
 	f := func() error {
@@ -56,8 +56,8 @@ func TestRetry(t *testing.T) {
 }
 
 func TestRetryContext(t *testing.T) {
-	var cancelOn = 3
-	var i = 0
+	cancelOn := 3
+	i := 0
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -173,7 +173,7 @@ func TestPermanent(t *testing.T) {
 	}
 
 	wrapped := fmt.Errorf("wrapped: %w", err)
-	var permanent *PermanentError
+	var permanent *permanentError
 	if !errors.As(wrapped, &permanent) {
 		t.Errorf("errors.As(%v, %v)", wrapped, permanent)
 	}
